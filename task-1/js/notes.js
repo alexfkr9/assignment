@@ -1,94 +1,16 @@
-let initialState = [
-  {
-    id: 221,
-    name: "Shopping list",
-    created: "May 20, 2021",
-    category: "Task",
-    content: "Tomatoes, bread",
-    date: "April 20, 2021",
-    archived: false,
-  },
-  {
-    id: 222,
-    name: "The theory of evolushion",
-    created: "March 20, 2021",
-    category: "Random Thought",
-    content: "Coffe bra",
-    date: "April 20, 2021",
-    archived: false,
-  },
-  {
-    id: 223,
-    name: "New Features",
-    created: "June 20, 2021",
-    category: "Idea",
-    content: "TV show",
-    date: "June 20, 2021",
-    archived: false,
-  },
-  {
-    id: 224,
-    name: "Shopping list",
-    created: "March 20, 2021",
-    category: "Quote",
-    content: "Tomatoes, bread",
-    date: "April 20, 2021",
-    archived: false,
-  },
-  {
-    id: 225,
-    name: "The theory of evolushion",
-    created: "June 20, 2021",
-    category: "Random Thought",
-    content: "Coffe bra",
-    date: "June 20, 2021",
-    archived: false,
-  },
-  {
-    id: 226,
-    name: "New Features",
-    created: "August 20, 2021",
-    category: "Idea",
-    content: "TV show",
-    date: "August 20, 2021",
-    archived: false,
-  },
-  {
-    id: 227,
-    name: "Newtures",
-    created: "August 20, 2021",
-    category: "Idea",
-    content: "TV show",
-    date: "August 20, 2021",
-    archived: false,
-  },
-  {
-    id: 228,
-    name: "New Feaes",
-    created: "August 20, 2021",
-    category: "Idea",
-    content: "TV show",
-    date: "August 20, 2021",
-    archived: false,
-  },
-];
+import data from './data.js';
+import { getSummaryTab, groupBy } from './summary.js';
 
-let editId;
+let initialState = data;
 
 const refs = {
   table: document.querySelector("table"),
-  tbody: document.querySelector("tbody.table-body"),
-  tr: document.querySelector(".table-body tr"),
-  edit: document.querySelectorAll(".edit"),
-  archive: document.querySelector("button.archive"),
-  archiveShow: document.querySelector("button.archive-show"),
-  delete: document.querySelector("button.delete"),
-  deleteAll: document.querySelector("button.delete-all"),
-  input: document.querySelectorAll(".table-body input"),
+  tbody: document.querySelector("tbody.table-body"),  
+  archiveShow: document.querySelector("button.archive-show"), 
   createNoteBut: document.querySelector("button.create-note"),
-  saveNewNoteBut: document.querySelector("button.save-note"),
-  tsummary: document.querySelector("tbody.table-summary"),
+  saveNewNoteBut: document.querySelector("button.save-note"),  
 };
+
 
 function chooseEvent(e) {
   if (e.target.nodeName !== "BUTTON") {
@@ -122,8 +44,13 @@ let rowCurrent = {};
 refs.createNoteBut.addEventListener("click", createNote);
 
 function makeDisableAllButton() {
-  const allButtons = document.querySelectorAll(".table-body button");
+  const allButtons = document.querySelectorAll("table button, button.create-note");
   allButtons.forEach((item) => item.setAttribute("disabled", ""));
+}
+
+function removeDisabledAllButton() {
+  const allButtons = document.querySelectorAll("table button, button.create-note");
+  allButtons.forEach((item) => item.removeAttribute('disabled'));  
 }
 
 // Create Note
@@ -136,11 +63,16 @@ function createNote() {
   createNoteEl.dataset.rowid = rowCurrent.id;
   
   const dataEl = `<td>;)</td>
-  <td><input class='input-note' name="name" placeholder='name' /></td>
-  <td><input class='input-note' name="created" placeholder='created' /></td>      
-  <td><input class='input-note' name="category" placeholder='category' /></td>
-  <td><input class='input-note' name="content" placeholder='content' /></td>
-  <td><input class='input-note' name="date" placeholder='date' /></td>`;
+  <td><input class='input-note' type="text" name="name" placeholder='name'/></td>
+  <td><input class='' type="date" name="created" placeholder='created' /></td>      
+  <td><select class='' name="category" placeholder='category'>
+      <option value="Task" selected>Task</option>
+      <option value="Random Thought">Random Thought</option>
+      <option value="Idea">Idea</option>
+      <option value="Quote">Quote</option>
+  </select></td>
+  <td><input class='input-note' type="text" name="content" placeholder='content' /></td>
+  <td><input class='input-note' type="date" name="date" placeholder='date' /></td>`;
 
   createNoteEl.innerHTML = dataEl;
   refs.tbody.append(createNoteEl);
@@ -162,13 +94,12 @@ refs.saveNewNoteBut.addEventListener("click", saveNewNote);
 function saveNewNote() {
   refs.saveNewNoteBut.classList.add("display-none");
   refs.createNoteBut.classList.remove("display-none");
+  removeDisabledAllButton();
+
   initialState.push(rowCurrent);  
   rowCurrent = {};
   refs.tbody.innerHTML = rowEl();
 }
-
-// refs.form.addEventListener('submit', onFormSubmit);
-// refs.input.addEventListener('input', onTextInput);
 
 function onTextInput(e) {
   rowCurrent[e.target.name] = e.target.value;
@@ -183,11 +114,16 @@ function editNote(e) {
   const getEditRow = initialState.find((item) => item.id == rowId);
 
   const data = `<td>;)</td>
-  <td><input class='input-note' name="name" placeholder='${getEditRow.name}' /></td>
-  <td><input class='input-note' name="created" placeholder='${getEditRow.created}' /></td>      
-  <td><input class='input-note' name="category" placeholder='${getEditRow.category}' /></td>
-  <td><input class='input-note' name="content" placeholder='${getEditRow.content}' /></td>
-  <td><input class='input-note' name="date" placeholder='${getEditRow.date}' /></td>
+  <td><input class='input-note' type="text" name="name" value='${getEditRow.name}' /></td>
+  <td><input class='' type="date" name="created" value='${getEditRow.created}' /></td>      
+  <td><select class='' name="category" placeholder='${getEditRow.category}' '>
+    <option value="Task">Task</option>
+    <option value="Random Thought">Random Thought</option>
+    <option value="Idea">Idea</option>
+    <option value="Quote">Quote</option>
+  </select></td>
+  <td><input class='input-note' name="content" value='${getEditRow.content}' /></td>
+  <td><input class='input-note' name="date" value='${getEditRow.date}' /></td>
   <td><button class="save">save</button></td>
   <td><button class="cancel">cancel</button></td>
   <td><button class="delete" disabled >delete</button></td>`;
@@ -213,6 +149,7 @@ function editNote(e) {
       return;
     }
     if (e.target.classList.contains("cancel")) {
+      removeDisabledAllButton();
       refs.tbody.innerHTML = rowEl();
     }
     return;
@@ -232,6 +169,7 @@ function saveNote(rowId) {
     return item;
   });
 
+  removeDisabledAllButton();
   refs.tbody.innerHTML = rowEl();
 }
 
@@ -240,7 +178,7 @@ function archiveNote(e) {
   const rowId = Number(
     e.target.parentNode.parentNode.getAttribute("data-rowid")
   );
-  initialState = initialState.map((item) => {
+  initialState = initialState.map( item => {
     if (item.id === rowId) item.archived = !item.archived;
     return item;
   });
@@ -249,16 +187,18 @@ function archiveNote(e) {
   getSummaryTab(groupBy(initialState, "category"));
 }
 
-// Archive Note Show
+// Show Archive Note 
 let isShowArchive = true;
 function archiveNoteShow() {  
   if (isShowArchive) {
-    refs.archiveShow.innerHTML = 'Show active';    
+    refs.archiveShow.innerHTML = 'Show active';
+    refs.createNoteBut.style.opacity = 0;    
   } else {
     refs.archiveShow.innerHTML = 'Show archived';
+    refs.createNoteBut.style.opacity = 1;
   }  
   
-  refs.tbody.innerHTML = rowEl(isShowArchive);
+  refs.tbody.innerHTML = rowEl(isShowArchive);  
   isShowArchive = !isShowArchive;    
 }
 
@@ -290,7 +230,7 @@ const rowEl = ( isArchive=false, items=initialState ) =>
         <td>${item.category}</td>
         <td>${item.content}</td>
         <td>${item.date}</td>
-        <td><button class="edit">edit</button></td>
+        <td>${isArchive?'':'<button class="edit">edit</button>'}</td>
         <td><button class="archive">${isArchive?'unarchive':'archive'}</button></td>
         <td><button class="delete">delete</button></td>     
         </tr>`;
@@ -303,43 +243,5 @@ refs.table.addEventListener("click", (e) => {
   chooseEvent(e);
 });
 
-// Сreate an object by category
-var groupBy = function (arr, criteria) {
-  return arr.reduce(function (obj, item) {
-    // Checking if a criterion is a function of an element or a property of an element
-    var key = typeof criteria === "function" ? criteria(item) : item[criteria];
-
-    // If the property is not created, create it.
-    if (!obj.hasOwnProperty(key)) {
-      obj[key] = [0, 0];
-    }
-
-    // check for archived
-    if (!item.archived) {
-      obj[key][0] = obj[key][0] + 1;
-      return obj;
-    }
-    // add count in object
-    obj[key][1] = obj[key][1] + 1;
-
-    return obj;
-  }, {});
-};
-
-// Markup table summary
-function getSummaryTab(summaryObj) {
-  let El = "";
-  for (const key in summaryObj) {
-    El =
-      El +
-      `<tr>
-      <td>;)</td>
-      <td>${key}</td>
-      <td>${summaryObj[key][0]}</td>      
-      <td>${summaryObj[key][1]}</td>            
-      </tr>`;
-  }
-  refs.tsummary.innerHTML = El;
-}
 
 getSummaryTab(groupBy(initialState, "category"));
