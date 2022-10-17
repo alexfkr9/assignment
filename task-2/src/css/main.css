@@ -1,0 +1,15 @@
+input[type="text"]:disabled { font-weight: bold }
+
+.icon {
+    margin: 0.3rem;
+    padding: 0;
+    background-color: #6092c2;
+    color: #f7fdff;
+    border-radius: 50%;
+    border: 2px solid #e1ebfd;    
+    width: 1.4rem;
+    height: 1.4rem;  
+    box-shadow: 2px 3px 6px #8ebbe6;    
+    justify-content: center;
+    align-items: center; 
+}
